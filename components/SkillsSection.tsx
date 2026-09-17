@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Code2, Database, GitBranch, Monitor, Server, Terminal } from "lucide-react";
+import { BarChart3, Code2, Database, GitBranch, Monitor, Server, Sparkles, Terminal } from "lucide-react";
 import SplitWords from "@/components/motion/SplitWords";
 import { useReveal } from "@/components/motion/useReveal";
 import IconBadge from "@/components/ui/IconBadge";
@@ -20,6 +20,11 @@ const TIERS = [
     skills: ["Spring Boot", "Java Servlets", "MVC Architecture", "RESTful APIs", "DAO Pattern", "JUnit Testing", "Session Management", "Auth & Access Control"],
   },
   { id: "data", icon: Database, name: "Databases", role: "Persistence", skills: ["MySQL", "Oracle", "SQL Server", "Microsoft Access", "MongoDB", "Neo4j"] },
+];
+
+const BEYOND = [
+  { id: "data", icon: BarChart3, name: "Data & analysis", note: "Querying, analysing and reporting on data", skills: ["SQL", "Python", "Statistics", "Google Analytics"], learning: false },
+  { id: "learning", icon: Sparkles, name: "Learning now", note: "Where I'm growing next", skills: ["AWS cloud architecture", "Business intelligence", "AI agents & LLM APIs", "AI coding tools"], learning: true },
 ];
 
 const TOOLS = [
@@ -80,8 +85,8 @@ export default function SkillsSection() {
           <SplitWords text="Technical stack." />
         </h2>
         <p className="mx-auto mt-5 max-w-[46ch] font-serif text-[1.1rem] leading-relaxed text-muted" data-reveal="1">
-          The languages, frameworks and architecture I use to build robust applications, laid out the way a request moves
-          through them.
+          The languages, frameworks and tools I work with, from the tiers of an application to data and analysis, plus what
+          I&apos;m learning next.
         </p>
       </div>
 
@@ -136,6 +141,33 @@ export default function SkillsSection() {
               </div>
             )}
           </div>
+        ))}
+      </div>
+
+      {/* Beyond the application tiers */}
+      <div className="mx-auto mt-3 grid max-w-6xl gap-3 px-5 md:grid-cols-2 md:px-6 lg:mt-4 lg:gap-4">
+        {BEYOND.map((b, i) => (
+          <article key={b.id} className="rounded-[28px] bg-surface p-6 text-left shadow-card md:p-8" data-reveal={i}>
+            <div className="flex items-center gap-4">
+              <IconBadge icon={b.icon} tone={b.learning ? "signal" : "accent"} pop={i} />
+              <div>
+                <h3 className="font-display text-[1.4rem] font-medium tracking-tight text-ink">{b.name}</h3>
+                <p className="font-serif text-[0.95rem] text-muted">{b.note}</p>
+              </div>
+            </div>
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {b.skills.map((s) => (
+                <li
+                  key={s}
+                  className={`rounded-full px-3 py-1.5 font-mono text-[0.78rem] transition-transform duration-300 ease-film hover:-translate-y-0.5 ${
+                    b.learning ? "border border-dashed border-signal/50 text-signal" : "border border-line bg-paper/60 text-ink/85"
+                  }`}
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </article>
         ))}
       </div>
 

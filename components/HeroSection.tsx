@@ -249,7 +249,7 @@ export default function HeroSection() {
           className="film-chapter absolute inset-x-0 bottom-0 h-[44%] px-5 pt-5 md:inset-auto md:left-[clamp(24px,6vw,96px)] md:top-1/2 md:h-auto md:w-[min(46%,38rem)] md:-translate-y-1/2 md:px-0 md:pt-0"
           style={isStatic ? { opacity: 1, visibility: "visible" } : undefined}
         >
-          <p className="label rule-draw text-muted md:text-photo-muted">Software developer · Ottawa</p>
+          <p className="label rule-draw text-muted md:text-photo-muted">Software · Data · AI · Ottawa</p>
           <h1 className="mt-3 font-display text-[clamp(2.3rem,9vw,2.9rem)] leading-[1.02] font-medium tracking-[-0.03em] text-ink md:mt-4 md:text-[clamp(3rem,5.4vw,5.2rem)] md:text-photo-ink">
             <SplitWords text="Mehrad Andalibi" />
           </h1>
@@ -257,7 +257,7 @@ export default function HeroSection() {
             <SplitWords text="Software development, with a business perspective." offset={2} />
           </p>
           <p className="mt-5 hidden max-w-[34ch] font-serif text-[1.05rem] leading-relaxed text-photo-muted md:block">
-            Backend systems in Java and Spring Boot, REST APIs and relational databases, built to be read, tested and run.
+            Software, data and systems that help organizations run, from Java services and SQL databases to analysis and AI.
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5 md:mt-7 md:gap-3">
             <Link
@@ -295,12 +295,12 @@ export default function HeroSection() {
             {...chapterProps(1)}
             className="film-chapter absolute inset-x-0 bottom-0 h-[44%] px-5 pt-5 md:inset-auto md:left-[clamp(24px,6vw,96px)] md:top-1/2 md:h-auto md:w-[min(42%,34rem)] md:-translate-y-1/2 md:px-0 md:pt-0"
           >
-            <p className="label rule-draw text-muted md:text-photo-muted">Java · Spring Boot · REST</p>
+            <p className="label rule-draw text-muted md:text-photo-muted">Java · SQL · Python</p>
             <h2 className="mt-3 font-display text-[clamp(2rem,8.4vw,2.6rem)] leading-[1.04] font-medium tracking-[-0.028em] text-ink md:mt-4 md:text-[clamp(2.4rem,4.6vw,4.4rem)] md:text-photo-ink">
               <SplitWords text="Building useful software." />
             </h2>
             <p className="mt-3 max-w-[32ch] font-serif text-base leading-relaxed text-muted md:mt-5 md:text-[1.1rem] md:text-photo-muted">
-              Services that move real work forward: clean architecture, tested business logic, databases designed to last.
+              Clean architecture, tested logic and data you can trust, whether it&apos;s a service, a database or a report.
             </p>
           </div>
         )}

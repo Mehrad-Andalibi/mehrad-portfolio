@@ -1,16 +1,16 @@
 "use client";
 
 import { useRef } from "react";
-import { Cloud, GraduationCap, MapPin, Network } from "lucide-react";
+import { Cloud, Compass, GraduationCap, MapPin } from "lucide-react";
 import ScrollHighlight from "@/components/motion/ScrollHighlight";
 import { useReveal } from "@/components/motion/useReveal";
 import IconBadge from "@/components/ui/IconBadge";
 
 const FACTS = [
   { icon: GraduationCap, term: "Studying", detail: "Bachelor of Technology, Business Systems Development", sub: "Algonquin College" },
-  { icon: Network, term: "Focus", detail: "Backend systems and the orchestration layer", sub: "Autonomous systems ↔ business software" },
+  { icon: Compass, term: "Open to", detail: "Software, IT, data & BI, and AI roles", sub: "Including co-op" },
   { icon: Cloud, term: "Preparing for", detail: "AWS Certified Solutions Architect", sub: "Associate" },
-  { icon: MapPin, term: "Based in", detail: "Ottawa, Canada", sub: "Open to co-op roles" },
+  { icon: MapPin, term: "Based in", detail: "Ottawa, Ontario", sub: "Canada" },
 ];
 
 export default function AboutSection() {
@@ -26,8 +26,8 @@ export default function AboutSection() {
 
         <ScrollHighlight
           className="mt-6 max-w-[22ch] font-display text-[clamp(2rem,5.2vw,4.6rem)] leading-[1.06] font-medium tracking-[-0.03em] text-balance"
-          text="I build backend systems in Java and Spring Boot, and I study the business side on purpose, so the software fits how organizations actually run."
-          emphasis={["backend", "business"]}
+          text="I build software, work with data and keep learning, and I study the business side on purpose, so the technology fits how organizations actually run."
+          emphasis={["software", "data", "business"]}
         />
 
         {/* Fact tiles */}
@@ -50,14 +50,15 @@ export default function AboutSection() {
         <div className="mt-16 grid gap-8 font-serif text-[1.08rem] leading-[1.75] text-ink/85 md:mt-24 md:grid-cols-2 md:gap-16">
           <p data-reveal>
             I&apos;m a software developer in Ottawa. After graduating from Algonquin College&apos;s Computer Programming diploma,
-            I&apos;m now completing a Bachelor of Technology in Business Systems Development. My foundation is backend
-            engineering: Java, Servlets and Spring Boot services, MVC architecture and RESTful APIs, with database-driven designs
-            and clean patterns like DAO, Builder and Observer.
+            I&apos;m now completing a Bachelor of Technology in Business Systems Development. My foundation is in Java and Spring
+            Boot, RESTful APIs and relational databases, and I&apos;ve built on it with SQL, Python and statistics for working with
+            data.
           </p>
           <p data-reveal="2">
-            I&apos;m focused on the orchestration layer, the software that connects autonomous systems such as robot fleets and
-            AI agents to the business systems that give their work meaning. I&apos;m open to co-op and backend developer
-            opportunities where I can build scalable, maintainable systems.
+            I&apos;m most interested in the places where technology meets the business: data analysis and business intelligence,
+            AI tools and agents, IT systems, and the orchestration layer that connects autonomous systems to the software
+            organizations run on. I&apos;m open to software, IT, data, BI and AI roles, and eager to keep learning wherever the
+            work takes me.
           </p>
         </div>
       </div>

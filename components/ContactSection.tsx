@@ -83,7 +83,7 @@ export default function ContactSection() {
               <SplitWords text="Let's build something useful." />
             </h2>
             <p className="mt-4 hidden max-w-[34ch] font-serif text-[1.08rem] leading-relaxed text-photo-muted sm:block" data-reveal="1">
-              Open to co-op and backend developer opportunities. Reach out about a role, a project or a collaboration.
+              Open to software, IT, data, BI and AI roles, including co-op. Reach out about a role, a project or a collaboration.
             </p>
             <div className="mt-6" data-reveal="2">
               <a

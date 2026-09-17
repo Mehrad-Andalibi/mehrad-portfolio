@@ -30,7 +30,7 @@ const code = localFont({
 
 const title = "Mehrad Andalibi · Software Developer";
 const description =
-  "Software developer in Ottawa building backend systems in Java and Spring Boot, with a business perspective. Currently building a VDA 5050 fleet orchestrator.";
+  "Software developer in Ottawa with a business perspective, open to software, IT, data, BI and AI roles. Currently building a VDA 5050 fleet orchestrator.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mehradandalibi.dev"),
