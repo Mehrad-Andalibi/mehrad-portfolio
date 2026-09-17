@@ -1,295 +1,221 @@
 "use client";
 
-import { useRef } from 'react';
-import Link from 'next/link';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import { useRef, type ComponentType } from "react";
+import SplitWords from "@/components/motion/SplitWords";
+import { useReveal } from "@/components/motion/useReveal";
+import FlowDiagram from "@/components/projects/FlowDiagram";
+import { BlogFeed, SchemaDiagram, ShipmentBoard, TransitMap } from "@/components/projects/Visuals";
+import { gsap, useGSAP, MOTION_OK } from "@/lib/gsap";
 
-// Register plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
-}
+type Project = {
+  id: string;
+  kicker: string;
+  title: string;
+  summary: string;
+  meta?: string;
+  stack: string[];
+  Visual: ComponentType;
+};
+
+const PROJECTS: Project[] = [
+  {
+    id: "ptfms",
+    kicker: "Enterprise Java web application",
+    title: "Public Transit Fleet Management System",
+    meta: "3-tier architecture",
+    summary:
+      "Enterprise-level Java web application built with Servlets, MVC architecture and the DAO pattern. Features modular vehicle management, GPS tracking, secure authentication with role-based access control, and JUnit-validated business logic.",
+    stack: ["Java Servlets", "MVC", "MySQL", "JUnit"],
+    Visual: TransitMap,
+  },
+  {
+    id: "blog",
+    kicker: "Full-stack web application",
+    title: "Algonquin College Blog",
+    summary:
+      "Responsive full-stack web application for managing dynamic college blog content, with a database-driven backend and a clean, responsive front end.",
+    stack: ["PHP", "SQL", "HTML/CSS", "JavaScript"],
+    Visual: BlogFeed,
+  },
+  {
+    id: "logistics",
+    kicker: "Object-oriented Java",
+    title: "Logistics Company Core",
+    summary:
+      "A foundational Java application for shipping and inventory management. Applies strict object-oriented principles to practical business logic, integrated directly with SQL databases.",
+    stack: ["Java", "SQL", "OOP", "Inventory tracking"],
+    Visual: ShipmentBoard,
+  },
+  {
+    id: "lavender-grill",
+    kicker: "Database design",
+    title: "Lavender Grill Database",
+    summary:
+      "SQL Server database architecture for a restaurant, centred on structured relational schema design. Efficiently manages and queries complex menu and order relationships.",
+    stack: ["Microsoft SQL Server", "RDBMS", "Schema design"],
+    Visual: SchemaDiagram,
+  },
+];
+
+const MILESTONES = [
+  { ver: "v0.1", title: "Happy path", text: "Two simulated robots, one transport order carried end to end. Target: October 2026." },
+  { ver: "v0.2", title: "Failure recovery", text: "Lost connections, stale state and interrupted orders handled by a recovery policy. Target: November 2026." },
+  { ver: "Later", title: "Dashboard and multi-vendor fleets", text: "Deferred until the core is solid." },
+];
 
 export default function ProjectsSection() {
-  const containerRef = useRef<HTMLElement>(null);
-  
-  useGSAP(() => {
-    let mm = gsap.matchMedia();
+  const sectionRef = useRef<HTMLElement>(null);
+  useReveal(sectionRef);
 
-    // DESKTOP: Full staggered reveal
-    mm.add("(min-width: 1024px)", () => {
-      // Select all project rows
-      const projects = gsap.utils.toArray('.project-row');
-      
-      projects.forEach((project: any) => {
-        const visual = project.querySelector('.project-visual');
-        const contentElements = project.querySelectorAll('.project-content > *');
-
-        // Initial State setup
-        gsap.set(visual, { opacity: 0, scale: 0.95, y: 40 });
-        gsap.set(contentElements, { opacity: 0, y: 20 });
-
-        // ScrollTrigger Timeline for each project
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: project,
-            start: "top 75%",
-            toggleActions: "play none none reverse",
-          }
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        // Section rules draw across as they reach the viewport
+        gsap.utils.toArray<HTMLElement>(".draw-rule").forEach((rule) => {
+          gsap.fromTo(
+            rule,
+            { scaleX: 0 },
+            { scaleX: 1, ease: "none", scrollTrigger: { trigger: rule, start: "top 92%", end: "top 55%", scrub: true } },
+          );
         });
-
-        // 1. Visual container reveals first
-        tl.to(visual, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out"
-        })
-        // 2. Text content staggers in afterward
-        .to(contentElements, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.15,
-          ease: "power2.out"
-        }, "-=0.5"); // Overlap slightly with the visual reveal
-      });
-
-      return () => { }
-    });
-
-    // TABLET: Cleaner staggered reveal without scale changes
-    mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
-      const projects = gsap.utils.toArray('.project-row');
-      
-      projects.forEach((project: any) => {
-        const visual = project.querySelector('.project-visual');
-        const contentElements = project.querySelectorAll('.project-content > *');
-
-        gsap.set(visual, { opacity: 0, y: 20 });
-        gsap.set(contentElements, { opacity: 0, y: 10 });
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: project,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          }
+        // Illustrations lift with a little parallax against their text
+        gsap.utils.toArray<HTMLElement>(".project-visual").forEach((v) => {
+          gsap.fromTo(
+            v,
+            { y: 40 },
+            { y: -40, ease: "none", scrollTrigger: { trigger: v, start: "top bottom", end: "bottom top", scrub: true } },
+          );
         });
-
-        tl.to(visual, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" })
-          .to(contentElements, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" }, "-=0.4");
       });
-
-      return () => { }
-    });
-
-    // MOBILE: Lightweight singular element fade
-    mm.add("(max-width: 767px)", () => {
-      const projects = gsap.utils.toArray('.project-row');
-      projects.forEach((project: any) => {
-        gsap.fromTo(project, 
-          { opacity: 0, y: 30 },
-          { 
-            opacity: 1, 
-            y: 0, 
-            duration: 1, 
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: project,
-              start: "top 85%"
-            }
-          }
-        );
-      });
-    });
-
-  }, { scope: containerRef });
+    },
+    { scope: sectionRef },
+  );
 
   return (
-    <section id="projects" ref={containerRef} className="py-24 md:py-32 px-6 bg-white dark:bg-[#0a0a0d] border-t border-slate-100 dark:border-white/5 overflow-hidden">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-20">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-            Featured Projects.
-          </h2>
-          <div className="w-20 h-1 bg-blue-600 rounded-full" />
+    <section id="projects" ref={sectionRef} className="border-t border-line bg-paper px-5 py-24 md:px-6 md:py-36">
+      <div className="mx-auto max-w-6xl">
+        <p className="label rule-draw text-muted" data-split>
+          Projects
+        </p>
+        <h2
+          className="mt-4 max-w-[18ch] font-display text-[clamp(2.1rem,4.4vw,3.6rem)] leading-[1.04] font-medium tracking-[-0.028em] text-ink"
+          data-split
+        >
+          <SplitWords text="Systems that turn business rules into working software." />
+        </h2>
+
+        {/* ---------- Now building ---------- */}
+        <article id="fleet-orchestrator" className="relative mt-16 scroll-mt-24 pt-8 md:mt-24">
+          <span className="draw-rule absolute inset-x-0 top-0 h-px origin-left bg-ink" aria-hidden="true" />
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-20">
+            <div>
+              <div className="flex flex-wrap items-center gap-3" data-reveal>
+                <span className="label inline-flex items-center gap-2 rounded-[3px] bg-signal-bg px-2.5 py-1 text-signal">
+                  <i className="soft-blink inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                  In progress
+                </span>
+                <span className="label text-muted">Project 01 · Now building</span>
+              </div>
+              <h3 className="mt-5 font-display text-[clamp(1.8rem,3.2vw,2.6rem)] leading-tight font-medium tracking-tight text-ink" data-reveal="1">
+                Fleet Orchestrator
+              </h3>
+              <p className="mt-4 max-w-[60ch] font-serif text-[1.08rem] leading-[1.7] text-ink/90" data-reveal="2">
+                A fleet manager for autonomous mobile robots that speaks <strong className="font-semibold">VDA 5050</strong>, the
+                open standard warehouse robots use to receive orders and report their state. It dispatches transport orders over
+                MQTT, tracks each robot&apos;s live state, and is being built to recover cleanly when things go wrong.
+              </p>
+              <ul className="mt-6 flex flex-wrap gap-2" aria-label="Stack" data-reveal="3">
+                {["Java", "Spring Boot", "Maven", "MQTT · Mosquitto", "Docker", "VDA 5050"].map((s) => (
+                  <li key={s} className="rounded-[3px] border border-line px-2.5 py-1 font-mono text-[0.78rem] text-muted">
+                    {s}
+                  </li>
+                ))}
+              </ul>
+              <dl className="mt-9 space-y-4 border-l border-line pl-5" data-reveal="4">
+                <div>
+                  <dt className="label text-muted">Decision · ADR-001</dt>
+                  <dd className="mt-1 font-serif text-ink/90">
+                    Subscribe with a wildcard topic (<code className="font-mono text-[0.9em]">uagv/v2/+/+/state</code>) so new robots
+                    appear without configuration changes.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="label text-muted">Decision · ADR-002</dt>
+                  <dd className="mt-1 font-serif text-ink/90">
+                    Store each robot&apos;s raw last State message and derive the view from it, rather than mutating a model.
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <div>
+              <div data-reveal="1">
+                <FlowDiagram />
+              </div>
+              <p className="label mt-10 mb-2 text-muted" data-reveal>
+                Release plan
+              </p>
+              <ol>
+                {MILESTONES.map((m, i) => (
+                  <li key={m.ver} className="relative grid grid-cols-[4.5rem_1fr] gap-4 py-4" data-reveal={i + 1}>
+                    <span className="font-mono text-[0.85rem] text-accent">{m.ver}</span>
+                    <span>
+                      <span className="block font-display text-ink">{m.title}</span>
+                      <span className="block font-serif text-[0.95rem] text-muted">{m.text}</span>
+                    </span>
+                    <span className="draw-rule absolute inset-x-0 bottom-0 h-px origin-left bg-line" aria-hidden="true" />
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-6 font-serif text-sm text-muted italic" data-reveal>
+                The laptop screen in the intro film and this diagram are illustrative previews, not captured output. The
+                repository goes public with v0.1.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        {/* ---------- Completed work ---------- */}
+        <div className="mt-28 flex items-baseline justify-between gap-6 md:mt-40">
+          <p className="label text-muted" data-reveal>
+            Earlier projects
+          </p>
         </div>
-        
-        <div className="space-y-24 md:space-y-32">
-          
-          {/* Featured Project 1 (Image Right, Text Left) */}
-          <div className="project-row flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
-            {/* Content Side */}
-            <div className="project-content w-full md:w-1/2 flex flex-col justify-center text-left">
-              <div className="text-blue-600 dark:text-blue-400 font-mono text-sm font-semibold mb-4 tracking-wider">FEATURED PROJECT</div>
-              <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Public Transit Fleet Management System</h3>
-              
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-6 relative z-10 md:-mr-12">
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm mb-2 font-mono uppercase tracking-wide">Enterprise Java Web Application • 3-Tier Architecture</p>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
-                  Enterprise-level Java web application built using Servlets, MVC architecture, and DAO pattern. Features modular Vehicle Management, GPS Tracking, secure authentication with RBAC, and JUnit validated business logic.
-                </p>
+
+        <div className="mt-6 space-y-24 md:space-y-36">
+          {PROJECTS.map(({ Visual, ...p }, i) => (
+            <article key={p.id} id={p.id} className="relative scroll-mt-24 pt-8">
+              <span className="draw-rule absolute inset-x-0 top-0 h-px origin-left bg-line" aria-hidden="true" />
+              <div className={`grid items-center gap-10 md:grid-cols-2 lg:gap-20 ${i % 2 ? "md:[&>*:first-child]:order-2" : ""}`}>
+                <div>
+                  <p className="label text-muted" data-reveal>
+                    {p.kicker}
+                    {p.meta ? ` · ${p.meta}` : ""}
+                  </p>
+                  <h3 className="mt-4 font-display text-[clamp(1.6rem,2.8vw,2.3rem)] leading-tight font-medium tracking-tight text-ink" data-reveal="1">
+                    {p.title}
+                  </h3>
+                  <p className="mt-4 max-w-[56ch] font-serif text-[1.05rem] leading-[1.7] text-ink/85" data-reveal="2">
+                    {p.summary}
+                  </p>
+                  <ul className="mt-6 flex flex-wrap gap-2" aria-label="Stack" data-reveal="3">
+                    {p.stack.map((s) => (
+                      <li
+                        key={s}
+                        className="rounded-[3px] border border-line px-2.5 py-1 font-mono text-[0.78rem] text-muted transition-colors duration-300 hover:border-accent hover:text-ink"
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div data-reveal="1">
+                  <Visual />
+                </div>
               </div>
-
-              <div className="flex flex-wrap gap-3 mb-8 text-sm font-mono text-slate-500 dark:text-slate-400">
-                <span>Java Servlets</span>
-                <span>•</span>
-                <span>MVC Pattern</span>
-                <span>•</span>
-                <span>MySQL</span>
-                <span>•</span>
-                <span>JUnit</span>
-              </div>
-            </div>
-
-            {/* Visual Side */}
-            <div className="project-visual w-full md:w-1/2 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl group border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center">
-               <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 via-slate-800 to-slate-900 mix-blend-overlay" />
-               <div className="absolute inset-x-8 top-12 bottom-0 bg-slate-900 rounded-t-xl border-t border-x border-white/10 shadow-[0_-20px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col">
-                  {/* Mock Browser/App Header */}
-                  <div className="h-8 bg-slate-800/80 border-b border-white/5 flex items-center px-4 gap-2">
-                     <div className="w-2 h-2 rounded-full bg-slate-600" />
-                     <div className="w-2 h-2 rounded-full bg-slate-600" />
-                     <div className="w-2 h-2 rounded-full bg-slate-600" />
-                     <span className="text-[10px] text-slate-500 ml-2 font-mono border border-slate-600/50 rounded px-2 w-full max-w-xs text-center flex items-center justify-center h-4">ptfms.enterprise.local</span>
-                  </div>
-                  {/* Mock App Content - Dashboard */}
-                  <div className="flex-1 p-6 flex flex-col gap-4 opacity-70">
-                     <div className="w-1/3 h-6 bg-slate-700 rounded-md" /> {/* Title */}
-                     <div className="flex gap-4">
-                        <div className="flex-1 h-20 bg-blue-500/20 rounded-lg border border-blue-500/30" />
-                        <div className="flex-1 h-20 bg-emerald-500/20 rounded-lg border border-emerald-500/30" />
-                     </div>
-                     <div className="w-full h-32 bg-zinc-800/50 rounded-lg border border-white/5" /> {/* Map/Grid */}
-                  </div>
-               </div>
-            </div>
-          </div>
-
-          {/* Featured Project 2 (Image Left, Text Right) */}
-          <div className="project-row flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
-            {/* Visual Side */}
-            <div className="project-visual w-full md:w-1/2 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl group border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center">
-               <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 via-slate-800 to-slate-900 mix-blend-overlay" />
-               <div className="absolute inset-y-12 left-8 right-8 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col">
-                  {/* Mock Editor Header */}
-                  <div className="h-8 border-b border-white/5 flex items-center px-4 gap-4 bg-black/20">
-                     <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-slate-600"/><div className="w-2 h-2 rounded-full bg-slate-600"/></div>
-                     <span className="text-[10px] font-mono text-slate-400">blog-posts.php</span>
-                  </div>
-                  {/* Mock Content */}
-                  <div className="flex-1 p-5 flex flex-col gap-3 opacity-60 font-mono text-xs">
-                     <div className="flex gap-4"><span className="text-slate-500">1</span><div className="w-24 h-2 bg-purple-400/80 rounded" /></div>
-                     <div className="flex gap-4"><span className="text-slate-500">2</span><div className="w-48 h-2 bg-slate-500/80 rounded" /></div>
-                     <div className="flex gap-4"><span className="text-slate-500">3</span><div className="w-32 h-2 bg-blue-400/80 rounded" /></div>
-                     <div className="flex gap-4"><span className="text-slate-500">4</span><div className="w-16 h-2 bg-emerald-400/80 rounded" /></div>
-                     <div className="flex gap-4"><span className="text-slate-500">5</span><div className="w-40 h-2 bg-cyan-400/80 rounded" /></div>
-                  </div>
-               </div>
-            </div>
-
-            {/* Content Side */}
-            <div className="project-content w-full md:w-1/2 flex flex-col justify-center text-left md:items-end md:text-right">
-              <div className="text-cyan-500 font-mono text-sm font-semibold mb-4 tracking-wider">PROJECT</div>
-              <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Algonquin College Blog</h3>
-              
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-6 relative z-10 md:-ml-12 text-left md:text-right">
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-base sm:text-lg">
-                  Responsive full-stack web application built to manage dynamic college blog content. Includes a database-driven backend and a responsive front-end crafted for a clean user experience.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3 mb-8 text-sm font-mono text-slate-500 dark:text-slate-400 md:justify-end">
-                <span>PHP</span>
-                <span>•</span>
-                <span>SQL</span>
-                <span>•</span>
-                <span>HTML/CSS</span>
-                <span>•</span>
-                <span>JavaScript</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Featured Project 3 (Image Right, Text Left) */}
-          <div className="project-row flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
-            {/* Content Side */}
-            <div className="project-content w-full md:w-1/2 flex flex-col justify-center text-left">
-              <div className="text-purple-500 font-mono text-sm font-semibold mb-4 tracking-wider">PROJECT</div>
-              <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Logistics Company Core</h3>
-              
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-6 relative z-10 md:-mr-12">
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-base sm:text-lg">
-                  A foundational Java-based application for shipping and inventory management. Implements strict object-oriented programming principles to handle practical business logic integrated directly with SQL databases.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3 mb-8 text-sm font-mono text-slate-500 dark:text-slate-400">
-                <span>Java</span>
-                <span>•</span>
-                <span>SQL</span>
-                <span>•</span>
-                <span>OOP</span>
-                <span>•</span>
-                <span>Inventory Tracking</span>
-              </div>
-            </div>
-
-            {/* Visual Side */}
-            <div className="project-visual w-full md:w-1/2 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl group border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-800/50 flex flex-col p-6 lg:p-12 items-center justify-center">
-               <div className="absolute inset-0 bg-gradient-to-b from-purple-600/10 to-indigo-900/40 mix-blend-overlay" />
-               <div className="relative z-10 flex gap-6 mt-8">
-                 <div className="w-16 h-16 rounded bg-slate-800 border border-purple-500/30 flex items-center justify-center animate-pulse"><div className="w-8 h-8 rounded-full border-4 border-purple-400/50" /></div>
-                 <div className="w-16 h-16 rounded bg-slate-800 border border-blue-500/30 flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-blue-400/50" /></div>
-                 <div className="w-16 h-16 rounded bg-slate-800 border border-emerald-500/30 flex items-center justify-center animate-pulse"><div className="w-8 h-8 rounded-full border-4 border-emerald-400/50" /></div>
-               </div>
-               <div className="relative z-10 w-full max-w-[200px] h-20 border-x-2 border-b-2 border-slate-700/50 rounded-b-xl mt-[-2rem] -z-10" />
-            </div>
-          </div>
-
-          {/* Featured Project 4 (Image Left, Text Right) */}
-          <div className="project-row flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
-            {/* Visual Side */}
-            <div className="project-visual w-full md:w-1/2 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl group border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center p-6 sm:p-8">
-               <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-slate-900 mix-blend-overlay" />
-               <div className="w-full h-full bg-slate-900/60 backdrop-blur-lg rounded-xl flex flex-col border border-white/5 overflow-hidden">
-                 <div className="h-6 bg-emerald-900/30 border-b border-emerald-500/20 font-mono text-[8px] flex items-center px-4 text-emerald-400">SQL Server Management Studio</div>
-                 <div className="flex-1 p-4 flex flex-col gap-2">
-                   <div className="h-4 w-3/4 bg-slate-800 rounded" />
-                   <div className="h-4 w-1/2 bg-slate-800 rounded" />
-                   <div className="flex gap-2 mt-4">
-                     <div className="h-16 flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded" />
-                     <div className="h-16 flex-1 bg-blue-500/10 border border-blue-500/20 rounded" />
-                     <div className="h-16 flex-1 bg-purple-500/10 border border-purple-500/20 rounded" />
-                   </div>
-                 </div>
-               </div>
-            </div>
-
-            {/* Content Side */}
-            <div className="project-content w-full md:w-1/2 flex flex-col justify-center text-left md:items-end md:text-right">
-              <div className="text-emerald-500 font-mono text-sm font-semibold mb-4 tracking-wider">PROJECT</div>
-              <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Lavender Grill Database Base</h3>
-              
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-6 relative z-10 md:-ml-12 text-left md:text-right">
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-base sm:text-lg">
-                  SQL Server database system architecture for a restaurant prioritizing structured relational schema design. Efficiently manages and queries complex menu and order relationships.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3 mb-8 text-sm font-mono text-slate-500 dark:text-slate-400 md:justify-end">
-                <span>Microsoft SQL Server</span>
-                <span>•</span>
-                <span>RDMS</span>
-                <span>•</span>
-                <span>Schema Design</span>
-              </div>
-            </div>
-          </div>
-
+            </article>
+          ))}
         </div>
       </div>
     </section>

@@ -8,7 +8,13 @@ import ContactSection from "@/components/ContactSection";
 
 export default function Home() {
   return (
-    <div className="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-sans selection:bg-blue-200 dark:selection:bg-blue-900 scroll-smooth">
+    <>
+      <a
+        href="#about"
+        className="label fixed top-3 left-3 z-[60] -translate-y-24 rounded-[3px] bg-ink px-3 py-2 text-paper focus:translate-y-0"
+      >
+        Skip intro
+      </a>
       <Navbar />
       <main>
         <HeroSection />
@@ -18,6 +24,6 @@ export default function Home() {
         <EducationSection />
         <ContactSection />
       </main>
-    </div>
+    </>
   );
 }
