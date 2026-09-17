@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# mehradandalibi.dev
 
-## Getting Started
-
-First, run the development server:
+Personal portfolio of Mehrad Andalibi. Next.js 16 (App Router), Tailwind CSS 4, GSAP + ScrollTrigger.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How the site is put together
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Path | What it does |
+|---|---|
+| `app/globals.css` | Design tokens (colours, shadows, fonts, easing). The site is light-only by design. |
+| `app/layout.tsx` | Self-hosted fonts, page metadata, social share image (`public/og.jpg`). |
+| `lib/gsap.ts` | Registers GSAP plugins once. |
+| `components/motion/` | `SplitWords` (word-by-word headlines), `ScrollHighlight` (words light up on scroll) and `useReveal` (`data-reveal`, `data-reveal-zoom`, `data-pop`, `data-split`). |
+| `components/ui/IconBadge.tsx` | App-icon style tiles around Lucide icons. |
+| `components/HeroSection.tsx` | The scroll-driven film intro. |
+| `components/projects/` | Fleet Orchestrator message-flow diagram and the animated project illustrations. |
+| `public/film/` | Intro and closing films (MP4 + WebM) and their poster frames. |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## The film intro
 
-## Learn More
+`public/film/intro.mp4` (9.7 s) is scrubbed by scroll while the hero is pinned (`h-[460svh]`).
+`timeFor()` in `HeroSection.tsx` maps scroll progress to video time and crosses the two dissolves quickly.
 
-To learn more about Next.js, take a look at the following resources:
+- The film is encoded with a keyframe every 6 frames so seeking stays smooth. Re-encode new footage the same way:
+  `ffmpeg -i in.mp4 -vf scale=1280:720 -c:v libx264 -crf 25 -g 6 -keyint_min 6 -bf 0 -an -movflags +faststart intro.mp4`
+- If the video fails to load, the three poster frames crossfade instead.
+- With reduced motion, the hero is a single still frame with no pinning, and all scroll animations are off.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Content
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Project, skill and education data live in arrays at the top of each section component.
+The film's laptop screen, the message-flow diagram and the project illustrations are illustrative, and are labelled that way on the page.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fonts: Schibsted Grotesk, Source Serif 4 and JetBrains Mono (SIL Open Font License), in `app/fonts/`.

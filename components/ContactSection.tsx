@@ -1,190 +1,137 @@
 "use client";
 
-import { useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import { useRef, useState } from "react";
+import { ArrowUpRight, FileText, Github, Linkedin, Mail, type LucideIcon } from "lucide-react";
+import SplitWords from "@/components/motion/SplitWords";
+import { useReveal } from "@/components/motion/useReveal";
+import IconBadge from "@/components/ui/IconBadge";
+import { ScrollTrigger, useGSAP, MOTION_OK, gsap } from "@/lib/gsap";
 
-// Register plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
-}
+const LINKS: { icon: LucideIcon; label: string; value: string; href: string; external: boolean }[] = [
+  { icon: Mail, label: "Email", value: "mehradandalibi@gmail.com", href: "mailto:mehradandalibi@gmail.com", external: false },
+  { icon: Linkedin, label: "LinkedIn", value: "in/mehrad-andalibi", href: "https://www.linkedin.com/in/mehrad-andalibi", external: true },
+  { icon: Github, label: "GitHub", value: "mehrad-andalibi", href: "https://github.com/mehrad-andalibi", external: true },
+  { icon: FileText, label: "Resume", value: "Download PDF", href: "/resume/Mehrad-Andalibi-Resume.pdf", external: true },
+];
 
 export default function ContactSection() {
-  const containerRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const filmRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [filmFailed, setFilmFailed] = useState(false);
+  useReveal(sectionRef);
 
-  useGSAP(() => {
-    let mm = gsap.matchMedia();
-
-    // DESKTOP: Parallax & Timeline
-    mm.add("(min-width: 1024px)", () => {
-      // 1. Initial State
-      gsap.set(terminalRef.current, { opacity: 0, y: 30, scale: 0.95 });
-      gsap.set(contentRef.current?.children ? gsap.utils.toArray(contentRef.current.children) : [], { 
-        opacity: 0, 
-        y: 20 
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        const video = videoRef.current;
+        // The film card opens up from an inset rounded card to nearly full width
+        gsap.fromTo(
+          filmRef.current,
+          { clipPath: "inset(6% 7% 6% 7% round 48px)" },
+          {
+            clipPath: "inset(0% 0% 0% 0% round 32px)",
+            ease: "none",
+            scrollTrigger: { trigger: filmRef.current, start: "top 90%", end: "top 20%", scrub: true },
+          },
+        );
+        // The closing film plays once when it is well in view
+        const st = ScrollTrigger.create({
+          trigger: filmRef.current,
+          start: "top 45%",
+          once: true,
+          onEnter: () => {
+            if (!video) return;
+            video.preload = "auto";
+            const pr = video.play();
+            if (pr) pr.catch(() => {});
+          },
+        });
+        return () => st.kill();
       });
-
-      // 2. Main Timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%", // Trigger slightly before the section comes fully into view
-          toggleActions: "play none none reverse"
-        }
-      });
-
-      // 3. Animation Sequence
-      tl.to(terminalRef.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 1,
-        ease: "power3.out"
-      })
-      .to(contentRef.current?.children ? gsap.utils.toArray(contentRef.current.children) : [], {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power2.out"
-      }, "-=0.6");
-
-      // 4. Parallax effect for the Terminal
-      gsap.to(terminalRef.current, {
-        y: -40, // Move upwards as we scroll down
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1
-        }
-      });
-
-      return () => { }
-    });
-
-    // TABLET: Clean text/terminal fade, no parallax
-    mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
-      gsap.set(terminalRef.current, { opacity: 0, y: 20 });
-      gsap.set(contentRef.current?.children ? gsap.utils.toArray(contentRef.current.children) : [], { opacity: 0, y: 20 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse"
-        }
-      });
-
-      tl.to(terminalRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" })
-        .to(contentRef.current?.children ? gsap.utils.toArray(contentRef.current.children) : [], { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }, "-=0.4");
-        
-      return () => { }
-    });
-
-    // MOBILE: Fallback
-    mm.add("(max-width: 767px)", () => {
-      gsap.fromTo([terminalRef.current, contentRef.current], 
-        { opacity: 0, y: 20 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 1, 
-          stagger: 0.2,
-          scrollTrigger: { trigger: containerRef.current, start: "top 85%" }
-        }
-      );
-    });
-
-  }, { scope: containerRef });
+    },
+    { scope: sectionRef },
+  );
 
   return (
-    <section id="contact" ref={containerRef} className="relative py-32 px-6 bg-slate-900 dark:bg-[#050505] overflow-hidden border-t border-slate-800 dark:border-white/5">
-      
-      {/* Subtle Background Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-50" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto flex flex-col items-center relative z-10">
-        
-        {/* Subtle Terminal/Code Visual Anchor */}
-        <div ref={terminalRef} className="w-full max-w-sm bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-12 overflow-hidden transform-gpu">
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-white/5 bg-white/5">
-            <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-slate-600" />
-            <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-slate-600" />
-            <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-slate-600" />
-            <span className="text-[9px] sm:text-[10px] font-mono text-slate-500 ml-1 sm:ml-2">guest@mehrad-portfolio:~</span>
+    <section id="contact" ref={sectionRef} className="bg-paper pt-8 md:pt-16">
+      <div className="mx-auto max-w-[88rem] px-3 md:px-6">
+        <div ref={filmRef} className="relative overflow-hidden rounded-[32px] bg-film">
+          <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/8]">
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover object-[64%_30%] md:object-[64%_42%]"
+              muted
+              playsInline
+              preload="none"
+              poster="/film/frame-04.webp"
+              aria-hidden="true"
+              disablePictureInPicture
+              onError={() => setFilmFailed(true)}
+            >
+              {!filmFailed && <source src="/film/closing.mp4" type="video/mp4" />}
+              {!filmFailed && <source src="/film/closing.webm" type="video/webm" />}
+            </video>
           </div>
-          <div className="p-4 sm:p-5 font-mono text-[11px] sm:text-sm relative">
-            {/* Custom blink animation style */}
-            <style jsx>{`
-              @keyframes cursor-blink {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0; }
-              }
-              .terminal-cursor {
-                animation: cursor-blink 1s step-end infinite;
-              }
-            `}</style>
-            
-            <div className="flex items-center gap-3 text-emerald-400">
-               <span>$</span>
-               <span className="text-slate-300 relative inline-flex">
-                 ./init-contact-sequence.sh
-                 <span className="absolute -right-3 top-[3px] w-2 h-3.5 bg-emerald-400 terminal-cursor" />
-               </span>
+
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#efece7] via-[#efece7]/85 to-transparent px-6 pt-24 pb-7 md:inset-y-0 md:right-auto md:flex md:w-[min(46%,36rem)] md:flex-col md:justify-center md:bg-none md:pt-0 md:pb-0 md:pl-[clamp(24px,5vw,80px)]">
+            <p className="label rule-draw text-photo-muted" data-split>
+              Contact
+            </p>
+            <h2 className="mt-3 font-display text-[clamp(2.2rem,5.4vw,4.8rem)] leading-[1.02] font-medium tracking-[-0.035em] text-photo-ink md:mt-4" data-split>
+              <SplitWords text="Let's build something useful." />
+            </h2>
+            <p className="mt-4 hidden max-w-[34ch] font-serif text-[1.08rem] leading-relaxed text-photo-muted sm:block" data-reveal="1">
+              Open to software, IT, data, BI and AI roles, including co-op. Reach out about a role, a project or a collaboration.
+            </p>
+            <div className="mt-6" data-reveal="2">
+              <a
+                href="mailto:mehradandalibi@gmail.com"
+                className="group inline-flex items-center gap-2 rounded-full bg-[#1e2022] px-6 py-3 font-display text-[0.95rem] font-medium text-[#f6f5f2] transition-transform duration-300 ease-film hover:-translate-y-0.5"
+              >
+                Say hello
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 ease-film group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+              </a>
             </div>
-            <div className="mt-2 text-slate-500 text-xs text-opacity-80">Awaiting connection...</div>
           </div>
         </div>
+      </div>
 
-        {/* Text and Actions */}
-        <div ref={contentRef} className="text-center w-full flex flex-col items-center">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 sm:mb-6 text-white leading-tight">
-            Let&apos;s build something <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">impactful.</span>
-          </h2>
-          
-          <p className="text-base sm:text-lg md:text-xl text-slate-400 mb-10 sm:mb-12 max-w-2xl leading-relaxed px-4">
-            I’m currently open to Software Developer and Backend Developer opportunities. Feel free to reach out for collaboration, projects, or full-time roles.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-24">
-            <a 
-              href="mailto:mehradandalibi@gmail.com" 
-              className="group relative px-8 py-4 rounded-full bg-white text-slate-900 font-semibold hover:bg-slate-100 transition-all w-full sm:w-auto text-center overflow-hidden"
+      {/* Link tiles */}
+      <ul className="mx-auto mt-4 grid max-w-[88rem] gap-3 px-3 sm:grid-cols-2 md:px-6 lg:grid-cols-4 lg:gap-4">
+        {LINKS.map((l, i) => (
+          <li key={l.href} data-reveal={i}>
+            <a
+              href={l.href}
+              target={l.external ? "_blank" : undefined}
+              rel={l.external ? "noreferrer" : undefined}
+              className="group flex h-full flex-col justify-between gap-10 rounded-[28px] bg-surface p-6 shadow-card transition-[transform,box-shadow] duration-500 ease-film hover:-translate-y-1 hover:shadow-lift md:p-7"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Say Hello
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              <span className="flex items-start justify-between">
+                <IconBadge icon={l.icon} tone={i === 0 ? "ink" : "accent"} className="transition-transform duration-500 ease-film group-hover:scale-110 group-hover:-rotate-6" />
+                <ArrowUpRight
+                  className="h-5 w-5 text-muted transition-[transform,color] duration-300 ease-film group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
+                  aria-hidden="true"
+                />
+              </span>
+              <span>
+                <span className="label block text-muted">{l.label}</span>
+                <span className="mt-1 block truncate font-display text-[1.2rem] font-medium tracking-tight text-ink">{l.value}</span>
               </span>
             </a>
-            <a 
-              href="https://www.linkedin.com/in/mehrad-andalibi" 
-              target="_blank" 
-              rel="noreferrer"
-              className="px-8 py-4 rounded-full border border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white font-medium transition-all w-full sm:w-auto text-center"
-            >
-              Connect on LinkedIn
-            </a>
-          </div>
-        </div>
+          </li>
+        ))}
+      </ul>
 
-        {/* Footer Polish */}
-        <div className="w-full flex flex-col md:flex-row items-center justify-between border-t border-white/10 pt-8 mt-4 font-mono text-[10px] sm:text-xs text-slate-500 gap-6 md:gap-0">
-          <p className="text-center md:text-left">&copy; {new Date().getFullYear()} Mehrad Andalibi. All sequences online.</p>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            <a href="https://github.com/mehrad-andalibi" target="_blank" rel="noreferrer" className="hover:text-blue-400 transition-colors">GITHUB</a>
-            <a href="https://www.linkedin.com/in/mehrad-andalibi" target="_blank" rel="noreferrer" className="hover:text-blue-400 transition-colors">LINKEDIN</a>
-            <a href="mailto:mehradandalibi@gmail.com" className="hover:text-blue-400 transition-colors">EMAIL</a>
-          </div>
+      <footer className="px-5 pt-16 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] md:px-6">
+        <div className="label mx-auto flex max-w-6xl flex-col gap-3 border-t border-line pt-8 text-muted sm:flex-row sm:justify-between">
+          <p>© {new Date().getFullYear()} Mehrad Andalibi · Ottawa</p>
+          <a href="#hero" className="hover:text-ink">
+            Back to top ↑
+          </a>
         </div>
-        
-      </div>
+      </footer>
     </section>
   );
 }

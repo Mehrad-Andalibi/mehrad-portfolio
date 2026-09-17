@@ -1,26 +1,193 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens
+ * The palette is taken from the intro film: warm plaster, graphite and a
+ * steel-blue accent. The site is deliberately light-only so every section
+ * reads as part of the same daylight scene as the film.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #efece7;      /* page ground, the film's plaster wall */
+  --surface: #faf9f6;    /* raised cards and tiles */
+  --sunken: #e5e1da;     /* wells, tracks */
+  --ink: #1e2022;        /* primary text */
+  --muted: #6b6963;      /* secondary text */
+  --faint: #b9b5ad;      /* un-lit words in scroll highlights */
+  --line: #dcd7cf;       /* hairlines */
+  --accent: #3e5563;     /* steel blue */
+  --accent-soft: #dde4e8;
+  --accent-ink: #f6f5f2; /* text on accent */
+  --signal: #9a6a1c;     /* "in progress" amber */
+  --signal-bg: #f1e6cf;
+  --ok: #3f7a57;
+  --photo-ink: #1e2022;  /* text placed on the film */
+  --photo-muted: #4f4d48;
+  --film-ground: #d9d4cb;
+  --shadow-card: 0 1px 2px rgb(30 32 34 / 0.04), 0 12px 40px -12px rgb(30 32 34 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(30 32 34 / 0.05), 0 28px 60px -18px rgb(30 32 34 / 0.22);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-faint: var(--faint);
+  --color-accent-soft: var(--accent-soft);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-signal: var(--signal);
+  --color-signal-bg: var(--signal-bg);
+  --color-ok: var(--ok);
+  --color-photo-ink: var(--photo-ink);
+  --color-photo-muted: var(--photo-muted);
+  --color-film: var(--film-ground);
+
+  --font-sans: var(--ff-display), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--ff-display), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--ff-body), Georgia, "Times New Roman", serif;
+  --font-mono: var(--ff-code), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-film: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Small uppercase monospace label used for eyebrows, meta and the film HUD */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- word-by-word headline reveal (see components/motion/SplitWords) ---------- */
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.split-word > span {
+  display: inline-block;
+  transition: transform 0.95s var(--ease-film);
+  transition-delay: calc(var(--i) * 55ms);
+}
+/* words only start hidden once JavaScript is running (html.js), so the text is never lost */
+.js .split-word > span {
+  transform: translateY(108%);
+}
+.js [data-active="true"] .split-word > span,
+.js .split-play .split-word > span {
+  transform: none;
+}
+.js [data-ready="false"] [data-active="true"] .split-word > span {
+  transform: translateY(108%);
+}
+
+/* eyebrow rule that draws in next to a label */
+.rule-draw::after {
+  content: "";
+  display: inline-block;
+  width: 2.4rem;
+  height: 1px;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+  background: currentColor;
+  opacity: 0.5;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s var(--ease-film) 0.25s;
+}
+html:not(.js) .rule-draw::after,
+.js [data-active="true"] .rule-draw::after,
+.js .split-play .rule-draw::after {
+  transform: scaleX(1);
+}
+.js [data-ready="false"] [data-active="true"] .rule-draw::after {
+  transform: scaleX(0);
+}
+
+/* ---------- film hero ---------- */
+.film-chapter {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease-film), visibility 0s linear 0.5s;
+}
+.film-chapter[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s var(--ease-film), visibility 0s;
+}
+
+@keyframes rec-pulse {
+  70% { box-shadow: 0 0 0 8px rgb(178 74 54 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(178 74 54 / 0); }
+}
+.rec-dot {
+  animation: rec-pulse 2s infinite;
+  box-shadow: 0 0 0 0 rgb(178 74 54 / 0.5);
+}
+
+@keyframes hint-line {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+.hint-line { animation: hint-line 2.4s ease-in-out infinite; }
+
+@keyframes soft-blink { 50% { opacity: 0.25; } }
+.soft-blink { animation: soft-blink 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+  .js .split-word > span, .js [data-ready="false"] [data-active="true"] .split-word > span { transform: none; }
+  .js .rule-draw::after, .js [data-ready="false"] [data-active="true"] .rule-draw::after { transform: scaleX(1); }
+}
+
+/* ---------- Apple-style marquee ---------- */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
 }
