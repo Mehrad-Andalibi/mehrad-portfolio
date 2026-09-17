@@ -134,6 +134,15 @@ export default function HeroSection() {
               const fill = (p - CHAPTER_STARTS[i]) / (CHAPTER_STARTS[i + 1] - CHAPTER_STARTS[i]);
               bar.style.transform = `scaleX(${Math.min(1, Math.max(0, fill))})`;
             });
+
+            // Apple-style exit: the film settles back into a rounded card as the pin ends
+            const stage = stageRef.current;
+            if (stage) {
+              const q = Math.min(1, Math.max(0, (p - 0.9) / 0.1));
+              const e = q * q * (3 - 2 * q);
+              stage.style.transform = e ? `scale(${1 - 0.07 * e})` : "";
+              stage.style.borderRadius = e ? `${36 * e}px` : "";
+            }
           },
         });
 

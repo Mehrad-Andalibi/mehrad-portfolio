@@ -13,10 +13,11 @@ npm run lint
 
 | Path | What it does |
 |---|---|
-| `app/globals.css` | Design tokens (colours, fonts, easing) and dark mode. Change the palette here. |
+| `app/globals.css` | Design tokens (colours, shadows, fonts, easing). The site is light-only by design. |
 | `app/layout.tsx` | Self-hosted fonts, page metadata, social share image (`public/og.jpg`). |
 | `lib/gsap.ts` | Registers GSAP plugins once. |
-| `components/motion/` | `SplitWords` (word-by-word headlines) and `useReveal` (scroll reveals for `data-reveal` / `data-split`). |
+| `components/motion/` | `SplitWords` (word-by-word headlines), `ScrollHighlight` (words light up on scroll) and `useReveal` (`data-reveal`, `data-reveal-zoom`, `data-pop`, `data-split`). |
+| `components/ui/IconBadge.tsx` | App-icon style tiles around Lucide icons. |
 | `components/HeroSection.tsx` | The scroll-driven film intro. |
 | `components/projects/` | Fleet Orchestrator message-flow diagram and the animated project illustrations. |
 | `public/film/` | Intro and closing films (MP4 + WebM) and their poster frames. |

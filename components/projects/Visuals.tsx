@@ -11,8 +11,8 @@ import { useInView, useReducedMotion } from "@/lib/useReducedMotion";
 
 export function VisualFrame({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="project-visual relative overflow-hidden rounded-[4px] border border-line bg-surface">
-      <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
+    <div className="project-visual relative overflow-hidden rounded-[22px] border border-line/70 bg-paper">
+      <div className="flex items-center justify-between border-b border-line/70 px-5 py-3">
         <span className="font-mono text-[0.72rem] text-muted">{title}</span>
         <span className="label text-muted/70">Illustration</span>
       </div>

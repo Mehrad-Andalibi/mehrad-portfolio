@@ -60,7 +60,7 @@ export default function FlowDiagram() {
         const pt = w.getPointAtLength(w.getTotalLength() * (rev ? 1 - e : e));
         packet.current!.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
         packet.current!.style.opacity = "1";
-        text.current!.style.opacity = Math.sin(Math.PI * Math.min(1, t / segs.length)).toFixed(2);
+        text.current!.style.opacity = Math.pow(Math.sin(Math.PI * Math.min(1, t / segs.length)), 3).toFixed(2);
         if (t < segs.length) {
           raf = requestAnimationFrame(frame);
           return;
@@ -127,7 +127,7 @@ export default function FlowDiagram() {
   );
 
   return (
-    <figure ref={figRef} className="rounded-[4px] border border-line bg-paper p-4 md:p-5">
+    <figure ref={figRef} className="rounded-[22px] bg-paper p-4 md:p-7">
       <figcaption className="label mb-2 flex flex-wrap justify-between gap-3 text-muted">
         <span>Message flow · simulated</span>
         <span className="flex gap-4">
